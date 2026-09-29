@@ -52,7 +52,7 @@
 | 演員 | 自動完成，可多選（任一符合） | `with_cast=id1\|id2` |
 | 導演 | 自動完成，可多選（任一符合） | `with_crew=id1\|id2` |
 | 最低評分 | 0–9 滑桿（0 表示不限） | `vote_average.gte=7`，並加 `vote_count.gte=50` 避免少數票極端值 |
-| 原始語言 | 下拉選單：不限、英（en）、華（zh）、日（ja）、韓（ko）、法（fr）、西（es）、德（de）、泰（th） | `with_original_language=ja` |
+| 原始語言 | 下拉選單：不限、英（en）、華（zh）、粵（cn，TMDB 對粵語片使用的代碼）、日（ja）、韓（ko）、法（fr）、西（es）、德（de）、泰（th） | `with_original_language=ja` |
 | 片長上限 | 下拉選單（不限、90、120、150、180 分鐘） | `with_runtime.lte=120` |
 
 固定參數：`include_adult=false`、`sort_by=popularity.desc`（排序只影響分頁內容，抽選本身是隨機的）。

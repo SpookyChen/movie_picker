@@ -4,7 +4,7 @@ import { PROVIDERS, DEFAULT_FILTERS, normalizeFilters, filtersKey } from '../fil
 import { createPicker } from '../picker.js';
 
 const LANGUAGES = [
-  ['', '不限'], ['en', '英語'], ['zh', '華語'], ['ja', '日語'], ['ko', '韓語'],
+  ['', '不限'], ['en', '英語'], ['zh', '華語'], ['cn', '粵語'], ['ja', '日語'], ['ko', '韓語'],
   ['fr', '法語'], ['es', '西班牙語'], ['de', '德語'], ['th', '泰語'],
 ];
 const RUNTIMES = [['', '不限'], ['90', '90 分鐘'], ['120', '120 分鐘'], ['150', '150 分鐘'], ['180', '180 分鐘']];
