@@ -26,6 +26,8 @@
 
 - 所有電影資料來自 TMDB（The Movie Database）API v3，上架資訊來自 TMDB 的 watch providers（資料源為 JustWatch），可能有數天延遲
 - API key 由使用者在「設定」頁輸入，只存在該瀏覽器的 localStorage，**不寫入原始碼**
+- 接受 v3「API Key」或 v4「API Read Access Token」（以 `eyJ` 開頭者改用 `Authorization: Bearer` header 傳送）；輸入值會去除前後空白
+- 依 TMDB 使用條款，設定頁顯示「This product uses the TMDB API but is not endorsed or certified by TMDB.」
 - 所有請求帶 `language=zh-TW` 以取得中文片名與簡介
 
 使用的 endpoints：
@@ -35,7 +37,7 @@
 | 條件查詢電影 | `GET /discover/movie` |
 | 類型清單 | `GET /genre/movie/list` |
 | 演員／導演自動完成 | `GET /search/person` |
-| 電影詳情（片長等） | `GET /movie/{id}` |
+| 電影詳情（片長、台灣上架平台） | `GET /movie/{id}?append_to_response=watch/providers` |
 | 驗證 API key | `GET /configuration` |
 
 海報圖片網址：`https://image.tmdb.org/t/p/w500{poster_path}`（列表縮圖用 `w185`）。
@@ -47,8 +49,8 @@
 | 平台 | Netflix / Disney+ 勾選（至少一個） | `with_watch_providers=8\|337`、`watch_region=TW` |
 | 類型 | 多選標籤（任一符合） | `with_genres=28\|878` |
 | 年代範圍 | 起始年、結束年（可留空） | `primary_release_date.gte=YYYY-01-01`、`primary_release_date.lte=YYYY-12-31` |
-| 演員 | 自動完成，可多選 | `with_cast=id1\|id2` |
-| 導演 | 自動完成，可多選 | `with_crew=id1\|id2` |
+| 演員 | 自動完成，可多選（任一符合） | `with_cast=id1\|id2` |
+| 導演 | 自動完成，可多選（任一符合） | `with_crew=id1\|id2` |
 | 最低評分 | 0–9 滑桿（0 表示不限） | `vote_average.gte=7`，並加 `vote_count.gte=50` 避免少數票極端值 |
 | 原始語言 | 下拉選單：不限、英（en）、華（zh）、日（ja）、韓（ko）、法（fr）、西（es）、德（de）、泰（th） | `with_original_language=ja` |
 | 片長上限 | 下拉選單（不限、90、120、150、180 分鐘） | `with_runtime.lte=120` |
@@ -120,9 +122,9 @@ movie_picker/
 
 ### 模組介面
 
-- **`tmdb.js`**：`createTmdb(apiKey, fetchFn = fetch)` 回傳 `{ discover(params, page), genres(), searchPerson(query), movie(id), validateKey() }`。錯誤統一丟出 `TmdbError`，帶 `kind`：`'auth' | 'network' | 'http'`。
+- **`tmdb.js`**：`createTmdb(apiKey, fetchFn = fetch)` 回傳 `{ discover(params, page), genres(), searchPerson(query), movie(id), validateKey() }`；`movie(id)` 另回傳 `runtime` 與 `providers`（台灣 flatrate 中屬於 8 / 337 的 id）。另匯出 `posterUrl(path, size)`、`toMovie(raw)`、`describeError(err)`（錯誤 → 中文訊息）。錯誤統一丟出 `TmdbError`，帶 `kind`：`'auth' | 'network' | 'http'`。
 - **`filters.js`**：`toDiscoverParams(filters)` → 純物件（不含 `page`、`api_key`）；`filtersKey(filters)` → 正規化後的字串，用於判斷條件是否改變。
-- **`storage.js`**：`createStorage(backend = localStorage)`，提供 `getState()`、`addToList(list, movie)`、`removeFromList(list, id)`、`moveToList(from, to, id)`、`isExcluded(id)`、`savePreset(name, filters)`、`renamePreset(id, name)`、`deletePreset(id)`、`exportJson()`、`importJson(text)`、`setApiKey(key)`。
+- **`storage.js`**：`createStorage(backend, now)`（backend 為 null 時使用記憶體），提供 `getApiKey()`、`getList(name)`、`getPresets()`、`addToList(list, movie)`、`removeFromList(list, id)`、`moveToList(from, to, id)`、`isExcluded(id)`、`savePreset(name, filters)`、`renamePreset(id, name)`、`deletePreset(id)`、`exportJson()`、`importJson(text)`、`setApiKey(key)`。
 - **`picker.js`**：`createPicker({ discover, isExcluded, random = Math.random })`，提供 `pick(filters)` 與 `resetRound()`。
 
 ## 隨機抽片演算法（picker.js）
@@ -150,7 +152,7 @@ movie_picker/
 
 限制：TMDB discover 最多 500 頁（10,000 部），超過的部分抽不到。台灣 Netflix + Disney+ 電影總量預期低於此數。
 
-抽到後呼叫 `movie(id)` 補上片長顯示；此呼叫失敗時仍顯示卡片，只是不顯示片長。
+抽到後呼叫 `movie(id)` 補上片長與平台標示；此呼叫失敗時仍顯示卡片，只是不顯示這兩項。
 
 ## 資料結構（localStorage）
 
@@ -161,7 +163,7 @@ movie_picker/
   "version": 1,
   "apiKey": "xxxx",
   "lists": {
-    "watched":       { "550": { "id": 550, "title": "鬥陣俱樂部", "poster": "/abc.jpg", "year": 1999, "addedAt": "2026-09-29" } },
+    "watched":       { "550": { "id": 550, "title": "鬥陣俱樂部", "poster": "/abc.jpg", "year": 1999, "addedAt": "2026-09-29T12:00:00.000Z" } },
     "notInterested": {},
     "watchlist":     {}
   },
@@ -186,6 +188,7 @@ movie_picker/
 ```
 
 - 排除判斷：`id` 存在於三份清單任一份即排除
+- `addedAt` 為 ISO 時間字串，清單頁依此由新到舊排序
 - 一部電影同一時間只會在一份清單中；加入某清單時會自動從其他清單移除
 - 匯出：整份 JSON 去掉 `apiKey` 後下載為 `movie-picker-backup-YYYY-MM-DD.json`
 - 匯入：驗證 `version` 與結構；清單以合併方式匯入（同 id 以匯入檔為準），預設組合以 `id` 合併；結構不符時顯示錯誤、不改動現有資料
