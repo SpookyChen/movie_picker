@@ -43,7 +43,8 @@ export function createPicker({ discover, isExcluded, random = Math.random }) {
     if (totalResults === 0) return { status: 'no-results' };
 
     let hasShownCandidate = false;
-    for (const page of pageOrder) {
+    for (let i = 0; i < pageOrder.length; i++) {
+      const page = pageOrder[i];
       const movies = await loadPage(page);
       const candidates = [];
       for (const movie of movies) {
@@ -57,6 +58,8 @@ export function createPicker({ discover, isExcluded, random = Math.random }) {
       if (candidates.length) {
         const movie = candidates[Math.floor(random() * candidates.length)];
         shownThisRound.add(movie.id);
+        // 抽過的頁移到最後，下一次從別的頁開始，避免連續抽到同一熱門度區段的片
+        pageOrder.push(...pageOrder.splice(i, 1));
         return { status: 'ok', movie };
       }
     }

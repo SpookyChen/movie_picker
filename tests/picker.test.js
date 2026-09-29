@@ -138,3 +138,12 @@ test('不同頁出現同一部片時不會在同一輪重複抽到', async () =>
   assert.equal(new Set(ids).size, 20);
   assert.equal((await picker.pick(DEFAULT_FILTERS)).status, 'round-exhausted');
 });
+
+test('連續兩次抽片來自不同頁，不會卡在同一頁', async () => {
+  for (let seed = 1; seed <= 20; seed++) {
+    const picker = createPicker({ discover: fakeDiscover(makeMovies(40)), isExcluded: none, random: seeded(seed) });
+    const a = (await picker.pick(DEFAULT_FILTERS)).movie.id;
+    const b = (await picker.pick(DEFAULT_FILTERS)).movie.id;
+    assert.notEqual(a <= 20, b <= 20, `seed ${seed}: ${a} 與 ${b} 在同一頁`);
+  }
+});

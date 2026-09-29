@@ -20,6 +20,12 @@ function toInt(value) {
   return Number.isFinite(n) ? n : null;
 }
 
+// 超出合理範圍（例如只打到一半的 199）視為不限
+function toYear(value) {
+  const n = toInt(value);
+  return n !== null && n >= 1870 && n <= 2100 ? n : null;
+}
+
 function uniqueSortedIds(ids) {
   if (!Array.isArray(ids)) return [];
   const clean = ids.map(Number).filter(Number.isInteger);
@@ -38,8 +44,8 @@ function uniqueSortedPeople(people) {
 
 export function normalizeFilters(filters = {}) {
   const f = { ...DEFAULT_FILTERS, ...filters };
-  let yearFrom = toInt(f.yearFrom);
-  let yearTo = toInt(f.yearTo);
+  let yearFrom = toYear(f.yearFrom);
+  let yearTo = toYear(f.yearTo);
   if (yearFrom !== null && yearTo !== null && yearFrom > yearTo) {
     [yearFrom, yearTo] = [yearTo, yearFrom];
   }

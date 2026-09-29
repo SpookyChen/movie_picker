@@ -82,3 +82,11 @@ test('filtersKey 與陣列順序無關', () => {
 test('filtersKey 條件不同時不同', () => {
   assert.notEqual(filtersKey({ genres: [28] }), filtersKey({ genres: [878] }));
 });
+
+test('打到一半或不合理的年份視為不限', () => {
+  const f = normalizeFilters({ yearFrom: '199', yearTo: '-5' });
+  assert.equal(f.yearFrom, null);
+  assert.equal(f.yearTo, null);
+  assert.equal(normalizeFilters({ yearFrom: '20' }).yearFrom, null);
+  assert.equal(normalizeFilters({ yearFrom: '1870', yearTo: '2100' }).yearTo, 2100);
+});

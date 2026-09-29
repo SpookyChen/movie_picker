@@ -40,7 +40,8 @@ export function describeError(err) {
 }
 
 export function createTmdb(apiKey, fetchFn = (...args) => globalThis.fetch(...args)) {
-  const key = String(apiKey).trim();
+  // 合法的 key 不含空白；手機複製長 token 時常夾帶換行
+  const key = String(apiKey).replace(/\s+/g, '');
   const isBearer = key.startsWith('eyJ');
 
   async function get(path, params = {}) {

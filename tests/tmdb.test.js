@@ -150,3 +150,9 @@ test('posterUrl', () => {
   assert.equal(posterUrl('/fc.jpg', 'w185'), 'https://image.tmdb.org/t/p/w185/fc.jpg');
   assert.equal(posterUrl(null), null);
 });
+
+test('API key 中間夾帶的換行或空白也會被去掉', async () => {
+  const fetch = fakeFetch(() => json({ genres: [] }));
+  await createTmdb('eyJhbGci\nOiJIUzI1 NiJ9', fetch).genres();
+  assert.equal(fetch.calls[0].options.headers.authorization, 'Bearer eyJhbGciOiJIUzI1NiJ9');
+});

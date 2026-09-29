@@ -200,3 +200,9 @@ test('getList 回傳的是複本，修改不影響內部狀態', () => {
   s.getList('watched')[0].title = '被改掉';
   assert.equal(s.getList('watched')[0].title, '鬥陣俱樂部');
 });
+
+test('setApiKey 會去掉 key 中間的換行與空白', () => {
+  const s = createStorage(memBackend());
+  s.setApiKey(' eyJab\ncd ef\t');
+  assert.equal(s.getApiKey(), 'eyJabcdef');
+});

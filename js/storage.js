@@ -100,7 +100,7 @@ export function createStorage(backend, now = () => new Date()) {
     getApiKey: () => state.apiKey,
 
     setApiKey(key) {
-      state.apiKey = String(key).trim();
+      state.apiKey = String(key).replace(/\s+/g, '');
       save();
     },
 
