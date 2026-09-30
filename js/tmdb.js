@@ -96,8 +96,11 @@ export function createTmdb(apiKey, fetchFn = (...args) => globalThis.fetch(...ar
 
     async movie(id) {
       const data = await get(`/movie/${id}`, { append_to_response: 'watch/providers' });
-      const flatrate = data['watch/providers']?.results?.TW?.flatrate ?? [];
-      const available = new Set(flatrate.map((p) => p.provider_id));
+      // 訂閱（Netflix、Disney+）在 flatrate；Apple TV 商店在 rent / buy
+      const tw = data['watch/providers']?.results?.TW ?? {};
+      const available = new Set(
+        [...(tw.flatrate ?? []), ...(tw.rent ?? []), ...(tw.buy ?? [])].map((p) => p.provider_id),
+      );
       return {
         ...toMovie(data),
         runtime: data.runtime || null,

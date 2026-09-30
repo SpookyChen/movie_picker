@@ -3,7 +3,19 @@ import assert from 'node:assert/strict';
 import { DEFAULT_FILTERS, PROVIDERS, normalizeFilters, toDiscoverParams, filtersKey } from '../js/filters.js';
 
 test('平台常數', () => {
-  assert.deepEqual(PROVIDERS, [{ id: 8, name: 'Netflix' }, { id: 337, name: 'Disney+' }]);
+  assert.deepEqual(PROVIDERS, [
+    { id: 8, name: 'Netflix' },
+    { id: 337, name: 'Disney+' },
+    { id: 2, name: 'Apple TV（租/買）' },
+  ]);
+});
+
+test('Apple TV 預設不勾選', () => {
+  assert.deepEqual(DEFAULT_FILTERS.providers, [8, 337]);
+});
+
+test('勾選 Apple TV 時一併查詢', () => {
+  assert.equal(toDiscoverParams({ providers: [8, 337, 2] }).with_watch_providers, '2|8|337');
 });
 
 test('預設條件只帶平台與固定參數', () => {

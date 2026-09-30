@@ -10,7 +10,7 @@
 
 - 只處理**電影**（不含影集）
 - 只處理**台灣地區**（`watch_region=TW`）
-- 平台：Netflix（TMDB provider id `8`）、Disney+（TMDB provider id `337`）
+- 平台：Netflix（TMDB provider id `8`）、Disney+（TMDB provider id `337`）、Apple TV 商店租借/購買（TMDB provider id `2`，預設不勾選）
 - 單人使用；資料只存在該瀏覽器，不做多裝置同步（以匯出/匯入 JSON 補足）
 
 不做（YAGNI）：影集、其他國家、其他平台、帳號系統、雲端同步、搜尋片名手動加入清單、快速滑卡建立清單。
@@ -46,7 +46,7 @@
 
 | 條件 | UI | TMDB discover 參數 |
 |---|---|---|
-| 平台 | Netflix / Disney+ 勾選（至少一個） | `with_watch_providers=8\|337`、`watch_region=TW` |
+| 平台 | Netflix / Disney+ / Apple TV（租/買）勾選（至少一個；Apple TV 預設不勾） | `with_watch_providers=8\|337`、`watch_region=TW` |
 | 類型 | 多選標籤（任一符合） | `with_genres=28\|878` |
 | 年代範圍 | 起始年、結束年（可留空） | `primary_release_date.gte=YYYY-01-01`、`primary_release_date.lte=YYYY-12-31` |
 | 演員 | 自動完成，可多選（任一符合） | `with_cast=id1\|id2` |
@@ -122,7 +122,7 @@ movie_picker/
 
 ### 模組介面
 
-- **`tmdb.js`**：`createTmdb(apiKey, fetchFn = fetch)` 回傳 `{ discover(params, page), genres(), searchPerson(query), movie(id), validateKey() }`；`movie(id)` 另回傳 `runtime` 與 `providers`（台灣 flatrate 中屬於 8 / 337 的 id）。另匯出 `posterUrl(path, size)`、`toMovie(raw)`、`describeError(err)`（錯誤 → 中文訊息）。錯誤統一丟出 `TmdbError`，帶 `kind`：`'auth' | 'network' | 'http'`。
+- **`tmdb.js`**：`createTmdb(apiKey, fetchFn = fetch)` 回傳 `{ discover(params, page), genres(), searchPerson(query), movie(id), validateKey() }`；`movie(id)` 另回傳 `runtime` 與 `providers`（台灣 flatrate、rent、buy 中屬於 8 / 337 / 2 的 id）。另匯出 `posterUrl(path, size)`、`toMovie(raw)`、`describeError(err)`（錯誤 → 中文訊息）。錯誤統一丟出 `TmdbError`，帶 `kind`：`'auth' | 'network' | 'http'`。
 - **`filters.js`**：`toDiscoverParams(filters)` → 純物件（不含 `page`、`api_key`）；`filtersKey(filters)` → 正規化後的字串，用於判斷條件是否改變。
 - **`storage.js`**：`createStorage(backend, now)`（backend 為 null 時使用記憶體），提供 `getApiKey()`、`getList(name)`、`getPresets()`、`addToList(list, movie)`、`removeFromList(list, id)`、`moveToList(from, to, id)`、`isExcluded(id)`、`savePreset(name, filters)`、`renamePreset(id, name)`、`deletePreset(id)`、`exportJson()`、`importJson(text)`、`setApiKey(key)`。
 - **`picker.js`**：`createPicker({ discover, isExcluded, random = Math.random })`，提供 `pick(filters)` 與 `resetRound()`。

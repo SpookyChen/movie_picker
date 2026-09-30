@@ -1,8 +1,10 @@
 export const PROVIDERS = [
   { id: 8, name: 'Netflix' },
   { id: 337, name: 'Disney+' },
+  { id: 2, name: 'Apple TV（租/買）' },
 ];
 
+// Apple TV 商店每部片都要另外付費，預設不勾選
 export const DEFAULT_FILTERS = Object.freeze({
   providers: [8, 337],
   genres: [],

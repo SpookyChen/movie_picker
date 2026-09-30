@@ -156,3 +156,16 @@ test('API key 中間夾帶的換行或空白也會被去掉', async () => {
   await createTmdb('eyJhbGci\nOiJIUzI1 NiJ9', fetch).genres();
   assert.equal(fetch.calls[0].options.headers.authorization, 'Bearer eyJhbGciOiJIUzI1NiJ9');
 });
+
+test('movie 的平台標示包含 Apple TV 的租借與購買', async () => {
+  const fetch = fakeFetch(() => json({
+    id: 1,
+    'watch/providers': { results: { TW: {
+      flatrate: [{ provider_id: 8 }],
+      rent: [{ provider_id: 2 }, { provider_id: 3 }],
+      buy: [{ provider_id: 2 }],
+    } } },
+  }));
+  const m = await createTmdb('k', fetch).movie(1);
+  assert.deepEqual(m.providers, [8, 2]);
+});

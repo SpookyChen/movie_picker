@@ -21,6 +21,7 @@ const cases = [
   ['Netflix + Disney+', DEFAULT_FILTERS],
   ['只有 Disney+、2010 年後', { ...DEFAULT_FILTERS, providers: [337], yearFrom: 2010 }],
   ['Netflix、日語、評分 7 以上', { ...DEFAULT_FILTERS, providers: [8], language: 'ja', minRating: 7 }],
+  ['Apple TV（租/買）、2020 年後', { ...DEFAULT_FILTERS, providers: [2], yearFrom: 2020 }],
 ];
 for (const [label, filters] of cases) {
   const result = await picker.pick(filters);
