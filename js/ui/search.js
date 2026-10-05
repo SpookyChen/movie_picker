@@ -1,4 +1,5 @@
 import { el, poster } from './dom.js';
+import { openDetail } from './detail.js';
 import { describeError } from '../tmdb.js';
 import { PROVIDERS } from '../filters.js';
 import { findPersonMovies, loadProviders } from '../search.js';
@@ -162,15 +163,44 @@ function fillPlatforms(cell, providers) {
   }
 }
 
+const MARK_ACTIONS = [
+  { list: 'watchlist', label: '🍿 加入待看', class: 'primary', toast: '已加入待看' },
+  { list: 'watched', label: '✅ 看過了', toast: '已加入已看過' },
+  { list: 'notInterested', label: '🙅 沒興趣', toast: '已加入沒興趣' },
+];
+
 function resultRow(movie, platformCell) {
-  const list = ctx.storage.listOf(movie.id);
+  const tag = el('span', { class: 'chip list-tag' });
+  function refreshTag() {
+    const list = ctx.storage.listOf(movie.id);
+    tag.textContent = list ? LIST_LABELS[list] : '';
+    tag.hidden = !list;
+  }
+  refreshTag();
+
+  function open() {
+    const current = ctx.storage.listOf(movie.id);
+    const actions = MARK_ACTIONS.map((a) => ({
+      label: a.label,
+      class: a.class,
+      disabled: current === a.list,
+      onClick: () => {
+        ctx.storage.addToList(a.list, { id: movie.id, title: movie.title, poster: movie.poster, year: movie.year });
+        ctx.toast(a.toast);
+        refreshTag();
+      },
+    }));
+    openDetail(ctx, movie, actions, { tag: current ? LIST_LABELS[current] : null });
+  }
+
   return el('li', { class: 'movie-row' },
-    poster(movie.poster, 'w185', 'thumb'),
+    el('div', { class: 'clickable', onclick: open }, poster(movie.poster, 'w185', 'thumb')),
     el('div', { class: 'movie-row-info' },
-      el('div', { class: 'movie-row-title' }, movie.title),
-      el('div', { class: 'muted' },
-        [movie.year ?? '年份不明', movie.originalTitle && movie.originalTitle !== movie.title ? movie.originalTitle : null]
-          .filter(Boolean).join('・')),
-      list ? el('span', { class: 'chip list-tag' }, LIST_LABELS[list]) : null,
+      el('div', { class: 'clickable', onclick: open },
+        el('div', { class: 'movie-row-title' }, movie.title),
+        el('div', { class: 'muted' },
+          [movie.year ?? '年份不明', movie.originalTitle && movie.originalTitle !== movie.title ? movie.originalTitle : null]
+            .filter(Boolean).join('・'))),
+      tag,
       platformCell));
 }
