@@ -1,4 +1,4 @@
-import { el, poster } from './dom.js';
+import { el, poster, metaText } from './dom.js';
 import { describeError } from '../tmdb.js';
 import { PROVIDERS, DEFAULT_FILTERS, normalizeFilters, filtersKey } from '../filters.js';
 import { createPicker } from '../picker.js';
@@ -283,14 +283,6 @@ async function draw() {
 
 function summary(movie) {
   return { id: movie.id, title: movie.title, poster: movie.poster, year: movie.year };
-}
-
-function metaText(movie, runtime) {
-  return [
-    movie.year ?? '年份不明',
-    runtime ? `${runtime} 分鐘` : null,
-    movie.rating ? `⭐ ${movie.rating.toFixed(1)}` : null,
-  ].filter(Boolean).join('・');
 }
 
 function mark(list, message) {

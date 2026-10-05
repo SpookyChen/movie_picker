@@ -95,6 +95,7 @@ span.chip { display: inline-block; background: var(--surface-2); border-radius: 
   border-radius: 8px;
 }
 .movie-card .chips { margin: 8px 0; }
+.movie-card .poster.poster-empty { display: flex; }
 .poster-empty { display: flex; align-items: center; justify-content: center; background: var(--surface-2); font-size: 3rem; }
 .overview { white-space: pre-line; }
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
@@ -146,6 +147,7 @@ span.chip.list-tag { background: transparent; border: 1px solid var(--border); m
 .tabbar button.active { color: var(--text); }
 
 #toast {
+  z-index: 20;
   position: fixed;
   left: 50%;
   bottom: calc(80px + env(safe-area-inset-bottom));
@@ -160,3 +162,31 @@ span.chip.list-tag { background: transparent; border: 1px solid var(--border); m
   transition: opacity 0.2s;
 }
 #toast.show { opacity: 1; }
+
+.clickable { cursor: pointer; }
+
+body.no-scroll { overflow: hidden; }
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+}
+.sheet {
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  margin: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  animation: slide-up 0.2s ease-out;
+}
+.movie-card.sheet .poster { max-width: 200px; }
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}

@@ -27,10 +27,20 @@ export function poster(path, size = 'w500', cls = 'poster') {
     : el('div', { class: `${cls} poster-empty` }, '🎬');
 }
 
-export function movieRow(movie, actions) {
+export function metaText(movie, runtime) {
+  return [
+    movie.year ?? '年份不明',
+    runtime ? `${runtime} 分鐘` : null,
+    movie.rating ? `⭐ ${movie.rating.toFixed(1)}` : null,
+  ].filter(Boolean).join('・');
+}
+
+// onOpen 有值時，點海報或片名會呼叫它（按鈕不受影響）
+export function movieRow(movie, actions, onOpen) {
+  const clickable = onOpen ? { class: 'clickable', onclick: onOpen } : {};
   return el('li', { class: 'movie-row' },
-    poster(movie.poster, 'w185', 'thumb'),
-    el('div', { class: 'movie-row-info' },
+    el('div', clickable, poster(movie.poster, 'w185', 'thumb')),
+    el('div', { ...clickable, class: `movie-row-info ${clickable.class ?? ''}`.trim() },
       el('div', { class: 'movie-row-title' }, movie.title),
       el('div', { class: 'muted' }, movie.year ?? '年份不明')),
     el('div', { class: 'movie-row-actions' },
