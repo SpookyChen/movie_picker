@@ -35,7 +35,7 @@ test('discover 組出正確網址並轉換結果', async () => {
     page: 3,
     totalPages: 12,
     totalResults: 230,
-    results: [{ id: 550, title: '鬥陣俱樂部', originalTitle: 'Fight Club', poster: '/fc.jpg', year: 1999, rating: 8.4, overview: '簡介' }],
+    results: [{ id: 550, title: '鬥陣俱樂部', originalTitle: 'Fight Club', poster: '/fc.jpg', year: 1999, rating: 8.4, overview: '簡介', popularity: 0 }],
   });
 });
 
@@ -86,8 +86,9 @@ test('回應不是 JSON 時丟出 http 錯誤', async () => {
 
 test('toMovie 處理缺少海報、日期、中文片名、評分', () => {
   assert.deepEqual(toMovie({ id: 1, original_title: 'Original' }), {
-    id: 1, title: 'Original', originalTitle: 'Original', poster: null, year: null, rating: null, overview: '',
+    id: 1, title: 'Original', originalTitle: 'Original', poster: null, year: null, rating: null, overview: '', popularity: 0,
   });
+  assert.equal(toMovie({ id: 4, popularity: 12.5 }).popularity, 12.5);
   assert.equal(toMovie({ id: 2, release_date: '' }).year, null);
   assert.equal(toMovie({ id: 3 }).title, '（無片名）');
 });
@@ -168,4 +169,19 @@ test('movie 的平台標示包含 Apple TV 的租借與購買', async () => {
   }));
   const m = await createTmdb('k', fetch).movie(1);
   assert.deepEqual(m.providers, [8, 2]);
+});
+
+test('searchMovie 用片名搜尋並轉換結果', async () => {
+  const fetch = fakeFetch(() => json({ results: [{ id: 550, title: '鬥陣俱樂部', original_title: 'Fight Club' }] }));
+  const movies = await createTmdb('k', fetch).searchMovie(' 鬥陣 ');
+  assert.equal(fetch.calls[0].url.pathname, '/3/search/movie');
+  assert.equal(fetch.calls[0].url.searchParams.get('query'), '鬥陣');
+  assert.equal(fetch.calls[0].url.searchParams.get('include_adult'), 'false');
+  assert.equal(movies[0].title, '鬥陣俱樂部');
+});
+
+test('searchMovie 空字串不發請求', async () => {
+  const fetch = fakeFetch(() => json({ results: [] }));
+  assert.deepEqual(await createTmdb('k', fetch).searchMovie('  '), []);
+  assert.equal(fetch.calls.length, 0);
 });

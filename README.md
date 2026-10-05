@@ -2,6 +2,7 @@
 
 從台灣 Netflix / Disney+ 上架的電影中，依類型、年代、演員、導演、評分、語言、片長隨機抽一部來看。
 可以把抽到的片標記為「看過了」「沒興趣」或加入「待看」，之後抽片會自動排除。
+也可以用片名、演員或導演搜尋，查看電影在 Netflix、Disney+、Apple TV（租/買）哪個平台看得到。
 
 - 純前端網頁，資料存在瀏覽器的 localStorage，不需要伺服器
 - 電影資料來自 [TMDB](https://www.themoviedb.org/)，上架資訊可能有數天延遲
@@ -45,6 +46,7 @@ API key 不在原始碼中，repository 設為公開也不會外洩 key。
 | `js/storage.js` | 清單、預設組合、API key、匯出/匯入 |
 | `js/tmdb.js` | TMDB API 呼叫 |
 | `js/picker.js` | 隨機抽片（隨機頁序、每頁只抓一次、同一輪不重複） |
+| `js/search.js` | 搜尋：演員／導演在各平台的作品、替電影補上平台 |
 | `js/app.js` | 進入點與分頁切換 |
 | `js/ui/*.js` | 各分頁畫面 |
 

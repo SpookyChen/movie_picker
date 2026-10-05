@@ -37,6 +37,7 @@
 | 條件查詢電影 | `GET /discover/movie` |
 | 類型清單 | `GET /genre/movie/list` |
 | 演員／導演自動完成 | `GET /search/person` |
+| 片名搜尋 | `GET /search/movie` |
 | 電影詳情（片長、台灣上架平台） | `GET /movie/{id}?append_to_response=watch/providers` |
 | 驗證 API key | `GET /configuration` |
 
@@ -61,7 +62,7 @@
 
 ## 畫面
 
-單一 `index.html`，底部導覽列切換 4 個分頁。
+單一 `index.html`，底部導覽列切換 5 個分頁（抽片、搜尋、待看、清單、設定）。
 
 ### ① 抽片（首頁）
 
@@ -74,6 +75,17 @@
   - **看過了**：加入已看過，並自動抽下一部
   - **沒興趣**：加入沒興趣，並自動抽下一部
   - **就看這部**：加入待看，顯示「已加入待看」
+
+### 🔍 搜尋
+
+查詢電影在台灣三個平台（Netflix、Disney+、Apple TV 租/買）的上架情形；一律查三個平台，不受抽片頁勾選影響。
+
+- 上方切換「片名／演員／導演」，下方一個搜尋框（輸入停頓 400ms 後查詢）
+- **片名**：`/search/movie` 取前 10 筆，先顯示列表，再逐部以 `movie(id)` 補上平台標籤；都沒有顯示「目前不在這些平台」，查詢失敗顯示「平台查詢失敗」
+- **演員／導演**：先以 `/search/person` 列出人名建議，點選後對三個平台各做一次 discover（`with_cast` 或 `with_crew` + `with_watch_providers=<單一平台>` + `watch_region=TW`），每平台最多 5 頁，合併後依熱門度排序，**只列出有上架的作品**；沒有則顯示「目前沒有在這些平台上的作品」
+- 結果列：海報縮圖、片名、年份、原文片名、平台標籤；若已在清單中加註「已看過／沒興趣／待看」
+- 搜尋結果不提供標記按鈕（標記仍在抽片時進行）
+- 邏輯放在 `js/search.js`（`findPersonMovies`、`loadProviders`），畫面在 `js/ui/search.js`
 
 ### ② 待看
 

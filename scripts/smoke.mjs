@@ -1,6 +1,7 @@
 // 用真實 TMDB API 驗證整條抽片流程：TMDB_KEY=你的key npm run smoke
 import { createTmdb } from '../js/tmdb.js';
 import { createPicker } from '../js/picker.js';
+import { findPersonMovies } from '../js/search.js';
 import { DEFAULT_FILTERS, PROVIDERS } from '../js/filters.js';
 
 const key = process.env.TMDB_KEY;
@@ -36,3 +37,15 @@ for (const [label, filters] of cases) {
 
 const [person] = await tmdb.searchPerson('Tom Hanks');
 console.log(`搜尋 Tom Hanks：${person?.name}（id ${person?.id}）`);
+
+const label = (ids) => PROVIDERS.filter((p) => ids.includes(p.id)).map((p) => p.name).join('、');
+const works = await findPersonMovies(tmdb, person.id, 'cast');
+console.log(`Tom Hanks 在平台上的作品 ${works.length} 部：${works.slice(0, 3).map((m) => `${m.title}（${label(m.providers)}）`).join('、')}…`);
+
+const [found] = await tmdb.searchMovie('阿甘正傳');
+if (found) {
+  const details = await tmdb.movie(found.id);
+  console.log(`片名搜尋「阿甘正傳」：${found.title}（${found.year}），平台：${label(details.providers) || '目前不在這些平台'}`);
+} else {
+  console.log('片名搜尋「阿甘正傳」：找不到');
+}

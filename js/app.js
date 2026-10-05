@@ -1,6 +1,7 @@
 import { createStorage } from './storage.js';
 import { createTmdb } from './tmdb.js';
 import * as pickTab from './ui/pick.js';
+import * as searchTab from './ui/search.js';
 import * as watchlistTab from './ui/watchlist.js';
 import * as listsTab from './ui/lists.js';
 import * as settingsTab from './ui/settings.js';
@@ -17,7 +18,7 @@ function localStorageOrNull() {
 }
 
 const storage = createStorage(localStorageOrNull());
-const tabs = { pick: pickTab, watchlist: watchlistTab, lists: listsTab, settings: settingsTab };
+const tabs = { pick: pickTab, search: searchTab, watchlist: watchlistTab, lists: listsTab, settings: settingsTab };
 let tmdb = null;
 let tmdbKey = null;
 let toastTimer;

@@ -27,6 +27,7 @@ export function toMovie(raw) {
     year: Number.isFinite(year) ? year : null,
     rating: typeof raw.vote_average === 'number' ? raw.vote_average : null,
     overview: raw.overview || '',
+    popularity: typeof raw.popularity === 'number' ? raw.popularity : 0,
   };
 }
 
@@ -81,6 +82,13 @@ export function createTmdb(apiKey, fetchFn = (...args) => globalThis.fetch(...ar
     async genres() {
       const data = await get('/genre/movie/list');
       return (data.genres ?? []).map((g) => ({ id: g.id, name: g.name }));
+    },
+
+    async searchMovie(query) {
+      const q = String(query).trim();
+      if (!q) return [];
+      const data = await get('/search/movie', { query: q, include_adult: 'false' });
+      return (data.results ?? []).map(toMovie);
     },
 
     async searchPerson(query) {

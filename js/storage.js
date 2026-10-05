@@ -128,6 +128,8 @@ export function createStorage(backend, now = () => new Date()) {
 
     isExcluded: (id) => LIST_NAMES.some((name) => id in state.lists[name]),
 
+    listOf: (id) => LIST_NAMES.find((name) => id in state.lists[name]) ?? null,
+
     getPresets: () => structuredClone(state.presets),
 
     savePreset(name, filters) {

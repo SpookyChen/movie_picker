@@ -206,3 +206,10 @@ test('setApiKey 會去掉 key 中間的換行與空白', () => {
   s.setApiKey(' eyJab\ncd ef\t');
   assert.equal(s.getApiKey(), 'eyJabcdef');
 });
+
+test('listOf 回報電影在哪個清單', () => {
+  const s = createStorage(memBackend(), clock());
+  s.addToList('watchlist', fightClub);
+  assert.equal(s.listOf(550), 'watchlist');
+  assert.equal(s.listOf(27205), null);
+});
