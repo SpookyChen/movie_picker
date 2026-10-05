@@ -4,6 +4,13 @@ const API_BASE = 'https://api.themoviedb.org/3';
 const IMAGE_BASE = 'https://image.tmdb.org/t/p/';
 export const MAX_PAGES = 500;
 
+// TMDB 的 zh-TW 類型清單回傳簡體字，改用固定的繁體名稱
+const GENRE_NAMES_TW = {
+  28: '動作', 12: '冒險', 16: '動畫', 35: '喜劇', 80: '犯罪', 99: '紀錄', 18: '劇情',
+  10751: '家庭', 14: '奇幻', 36: '歷史', 27: '恐怖', 10402: '音樂', 9648: '懸疑',
+  10749: '愛情', 878: '科幻', 10770: '電視電影', 53: '驚悚', 10752: '戰爭', 37: '西部',
+};
+
 export class TmdbError extends Error {
   constructor(kind, message, status) {
     super(message);
@@ -26,7 +33,7 @@ export function toMovie(raw) {
     poster: raw.poster_path || null,
     year: Number.isFinite(year) ? year : null,
     rating: typeof raw.vote_average === 'number' ? raw.vote_average : null,
-    overview: raw.overview || '',
+    overview: (raw.overview || '').trim(),
     popularity: typeof raw.popularity === 'number' ? raw.popularity : 0,
   };
 }
@@ -81,7 +88,7 @@ export function createTmdb(apiKey, fetchFn = (...args) => globalThis.fetch(...ar
 
     async genres() {
       const data = await get('/genre/movie/list');
-      return (data.genres ?? []).map((g) => ({ id: g.id, name: g.name }));
+      return (data.genres ?? []).map((g) => ({ id: g.id, name: GENRE_NAMES_TW[g.id] ?? g.name }));
     },
 
     async searchMovie(query) {

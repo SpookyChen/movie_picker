@@ -185,3 +185,16 @@ test('searchMovie 空字串不發請求', async () => {
   assert.deepEqual(await createTmdb('k', fetch).searchMovie('  '), []);
   assert.equal(fetch.calls.length, 0);
 });
+
+test('類型名稱轉成繁體，未知的類型保留原名', async () => {
+  const fetch = fakeFetch(() => json({ genres: [{ id: 28, name: '动作' }, { id: 10770, name: '电视电影' }, { id: 999, name: 'Foo' }] }));
+  assert.deepEqual(await createTmdb('k', fetch).genres(), [
+    { id: 28, name: '動作' },
+    { id: 10770, name: '電視電影' },
+    { id: 999, name: 'Foo' },
+  ]);
+});
+
+test('簡介去除前後的全形與半形空白', () => {
+  assert.equal(toMovie({ id: 1, overview: '　　加州，威尼斯海灘。 \n' }).overview, '加州，威尼斯海灘。');
+});
